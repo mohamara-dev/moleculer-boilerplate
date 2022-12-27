@@ -1,0 +1,266 @@
+version: "3.3"
+
+services:
+
+  api:
+    build:
+      context: .
+    image: pos-backend:latest
+    env_file: docker.env
+    environment:
+      LOG_FILE_PREFIX: main_app
+      LOG_FILE_LOCATION: /app/logs
+      LOG_META_DATA_TAG: main_app
+      SERVICEDIR: /app/src/services
+      PORT: 3000
+      SERVICES: api.service.ts
+    restart: unless-stopped
+    depends_on:
+      - nats
+      - traefik
+    volumes:
+      - ./:/app/
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api-gw.rule=PathPrefix(`/`)"
+      - "traefik.http.services.api-gw.loadbalancer.server.port=3000"
+
+  admin:
+    image: pos-backend:latest
+    env_file: docker.env
+    depends_on:
+      - redis
+      - mongo
+      - nats
+    volumes: 
+      - /var/log/applications/posback:/app/logs 
+      - ./:/app/
+      - ./public:/app/public
+    restart: unless-stopped
+    environment:
+      LOG_FILE_PREFIX: main_app
+      LOG_FILE_LOCATION: /app/logs
+      LOG_META_DATA_TAG: main_app
+      SERVICEDIR: /app/src/services
+      SERVICES: admin.service.ts
+    mem_limit: 2048m
+
+
+  pos:
+    image: pos-backend:latest
+    env_file: docker.env
+    depends_on:
+      - redis
+      - mongo
+      - nats
+    volumes: 
+      - /var/log/applications/posback:/app/logs 
+      - ./:/app/
+      - ./public:/app/public
+    restart: unless-stopped
+    environment:
+      LOG_FILE_PREFIX: main_app
+      LOG_FILE_LOCATION: /app/logs
+      LOG_META_DATA_TAG: main_app
+      SERVICEDIR: /app/src/services
+      SERVICES: pos.service.ts,transaction.service.ts,config.service.ts
+    mem_limit: 2048m
+  blockchain:
+    image: pos-backend:latest
+    env_file: docker.env
+    depends_on:
+      - redis
+      - mongo
+      - nats
+    volumes: 
+      - /var/log/applications/posback:/app/logs 
+      - ./:/app/
+      - ./public:/app/public
+    restart: unless-stopped
+    environment:
+      LOG_FILE_PREFIX: main_app
+      LOG_FILE_LOCATION: /app/logs
+      LOG_META_DATA_TAG: main_app
+      SERVICEDIR: /app/src/services
+      SERVICES: token.service.ts,blockchain.service.ts
+    mem_limit: 2048m
+
+  base:
+    image: pos-backend:latest
+    env_file: docker.env
+    depends_on:
+      - redis
+      - mongo
+      - nats
+    volumes: 
+      - /var/log/applications/posback:/app/logs 
+      - ./:/app/
+      - ./public:/app/public
+    restart: unless-stopped
+    environment:
+      LOG_FILE_PREFIX: main_app
+      LOG_FILE_LOCATION: /app/logs
+      LOG_META_DATA_TAG: main_app
+      SERVICEDIR: /app/src/services
+      SERVICES: fileManager.service.ts,uploader.service.ts
+    mem_limit: 2048m
+
+  financial:
+    image: pos-backend:latest
+    env_file: docker.env
+    depends_on:
+      - redis
+      - mongo
+      - nats
+    volumes: 
+      - /var/log/applications/posback:/app/logs 
+      - ./:/app/
+      - ./public:/app/public
+    restart: unless-stopped
+    environment:
+      LOG_FILE_PREFIX: main_app
+      LOG_FILE_LOCATION: /app/logs
+      LOG_META_DATA_TAG: main_app
+      SERVICEDIR: /app/src/services
+      SERVICES: financial.service.ts
+    mem_limit: 2048m
+
+  # location:
+  #   image: pos-backend:latest
+  #   env_file: docker.env
+  #   depends_on:
+  #     - redis
+  #     - mongo
+  #     - nats
+  #   volumes: 
+  #     - /var/log/applications/posback:/app/logs 
+  #     - ./:/app/
+  #     - ./public:/app/public
+  #   restart: unless-stopped
+  #   environment:
+  #     LOG_FILE_PREFIX: main_app
+  #     LOG_FILE_LOCATION: /app/logs
+  #     LOG_META_DATA_TAG: main_app
+  #     SERVICEDIR: /app/src/services
+  #     SERVICES: location.service.ts
+  #   mem_limit: 2048m
+
+  iam:
+    image: pos-backend:latest
+    env_file: docker.env
+    depends_on:
+      - redis
+      - mongo
+      - nats
+    volumes: 
+      - /var/log/applications/posback:/app/logs 
+      - ./:/app/
+      - ./public:/app/public
+    restart: unless-stopped
+    environment:
+      LOG_FILE_PREFIX: main_app
+      LOG_FILE_LOCATION: /app/logs
+      LOG_META_DATA_TAG: main_app
+      SERVICEDIR: /app/src/services
+      SERVICES: user.service.ts,authentication.service.ts
+    mem_limit: 2048m
+
+  # chat:
+  #   image: pos-backend:latest
+  #   env_file: docker.env
+  #   depends_on:
+  #     - redis
+  #     - mongo
+  #     - nats
+  #   volumes: 
+  #     - /var/log/applications/posback:/app/logs 
+  #     - ./:/app/
+  #     - ./public:/app/public
+  #   restart: unless-stopped
+  #   environment:
+  #     LOG_FILE_PREFIX: main_app
+  #     LOG_FILE_LOCATION: /app/logs
+  #     LOG_META_DATA_TAG: main_app
+  #     SERVICEDIR: /app/src/services
+  #     SERVICES: chat.service.ts
+  #   mem_limit: 2048m
+
+  # thirdParty-messaging:
+  #   image: pos-backend:latest
+  #   env_file: docker.env
+  #   depends_on:
+  #     - redis
+  #     - mongo
+  #     - nats
+  #   volumes: 
+  #     - /var/log/applications/posback:/app/logs 
+  #     - ./:/app/
+  #     - ./public:/app/public
+  #   restart: unless-stopped
+  #   environment:
+  #     LOG_FILE_PREFIX: main_app
+  #     LOG_FILE_LOCATION: /app/logs
+  #     LOG_META_DATA_TAG: main_app
+  #     SERVICEDIR: /app/src/services
+  #     SERVICES: thirdPartyMessaging.service.ts
+  #   mem_limit: 2048m
+
+  pos-backend-scheduler:
+    image: pos-backend:latest
+    env_file: docker.env
+    depends_on:
+      - redis
+      - mongo
+      - nats
+    volumes:
+      - /var/log/applications/posback:/app/logs
+      - ./:/app/
+    restart: unless-stopped
+    environment:
+      LOG_FILE_PREFIX: scheduler
+      LOG_FILE_LOCATION: /app/logs
+      LOG_META_DATA_TAG: shecduler
+      SERVICEDIR: /app/dist/src/services
+      SERVICES: scheduler.service.ts
+    mem_limit: 1024m
+
+  redis:
+    image: redis:latest
+    # command: redis-server /usr/local/etc/redis/redis.conf
+    command: redis-server --save 20 1 --loglevel warning 
+    ports:
+      - 16379:6379
+    volumes:
+      - ../pos-data/redis/data:/data
+      # - '/home/ansadmin/POS-backend/conf:/usr/local/etc/redis'
+    restart: unless-stopped
+    mem_limit: 1024m
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - 27021:27017
+    volumes:
+      - ../pos-data/mongo/data:/data/db
+    restart: unless-stopped
+    mem_limit: 1024m
+
+  nats:
+    image: nats:2
+
+  traefik:
+    image: traefik:v2.1
+    command:
+      - "--api.insecure=true" # Don't do that in production!
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+    ports:
+      - 3000:80
+      - 3001:8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - default
+
+volumes:
+  data:

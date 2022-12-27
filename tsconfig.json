@@ -1,0 +1,53 @@
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "removeComments": true,
+    "noImplicitAny": true,
+    "preserveConstEnums": true,
+    "strict": false,
+    "module": "commonjs",
+    "pretty": true,
+    // "types": [
+    //   "jest",
+    //   "node"
+    // ],
+    "outDir": "dist",
+    "sourceMap": true,
+    "target": "es6",
+    "allowJs": true,
+    "baseUrl": "./src", // should be dist in production
+    "paths": {
+      "@Base/*": [
+        "../*"
+      ],
+      "@Controllers/*": [
+        "./controllers/*"
+      ],
+      "@Models/*": [
+        "./models/*"
+      ],
+      "@Helpers/*": [
+        "./helpers/*"
+      ],
+      "@Types/*": [
+        "./types/*"
+      ],
+      "@ServiceDomain/*": [
+        "./serviceDomain/*"
+      ],
+      "@ThirdParty/*": [
+        "./thirdParty/*"
+      ]
+    }
+  },
+  "exclude": [
+    "node_modules/**/*",
+    "test"
+  ],
+  "include": [
+    "./src/**/*.ts",
+    "./src/services/**/*.ts",
+  ]
+}
